@@ -3,9 +3,9 @@
 const url = 'https://testeleonid.herokuapp.com/clientes'
 
 //ela vai pegar as informações da API
-const readClients =  async () => {
+const readClients =  async (id='') => {
 
-    const response = await fetch(url)
+    const response = await fetch(`${url}/${id}`)
      return await response.json() 
 
 }
@@ -29,10 +29,21 @@ const deleteClient = async (codigo) => {
 const response = await fetch( `${url}/${codigo} `, options)
 console.log(response.ok)
 }
+const updateCliente = async (cliente) =>{
+    const options = {
+        'method': 'PUT',
+        'body': JSON.stringify(cliente),
+         headers:{
+             'content-type': 'application/json'
+         }
+    }
+    const response  = await fetch (`${url}/${cliente.id}, options`)
+}
 
 export{
     readClients,
     createClient,
-    deleteClient
+    deleteClient,
+    updateCliente
 
 }

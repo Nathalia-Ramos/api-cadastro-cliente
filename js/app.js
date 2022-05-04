@@ -1,25 +1,25 @@
 'use strict'
 
 import {openModal, closeModal} from './modal.js'
-import {readClients, createClient, deleteClient} from './clientes.js'
+import {updateCliente, readClients, createClient, deleteClient} from './clientes.js'
 
-const createRow = (client) =>{
+const createRow = ({nome,email,celular,cidade,id}) => {
     const row = document.createElement ('tr')
     row.innerHTML = `
-    <td>${client.nome}</td>
-    <td>${client.email}</td>
-    <td>${client.celular}</td>
-    <td>${client.cidade}</td>
+    <td>${nome}</td>
+    <td>${email}</td>
+    <td>${celular}</td>
+    <td>${cidade}</td>
     <td>
-        <button type="button" class="button green" id="editar"-${client.id}>editar</button>
-        <button type="button" class="button red" id="excluir"-${client.id}>excluir</button>
+        <button type="button" class="button green" onClick="editClient(${id})">editar</button>
+        <button type="button" class="button red" onClick="delClient(${id})">excluir</button>
     </td>
     `
 
     return row 
 }
 
-const updateTable = async () => {
+    const updateTable = async () => {
 
     const clientsContainer = document.getElementById ('clients-container')
 
@@ -27,10 +27,15 @@ const updateTable = async () => {
     const clients = await readClients() 
 
     // Preencher a tabela com as informações da API
-    const rowns = clients.map(createRow)
-    clientsContainer.replaceChildren(...rowns)
+    const rows = clients.map(createRow)
+    
+    clientsContainer.replaceChildren(...rows)
 }
-const saveClient = async  () => {
+const isEdit = () => document.getElementById('nome').hasAttibute('data-id')
+
+
+
+const saveClient = async () => {
     //Criar um JSON com as infomações do cliente
     const client = {
         "id": "",
@@ -39,9 +44,17 @@ const saveClient = async  () => {
         "celular": document.getElementById('celular').value,
         "cidade":  document.getElementById('cidade').value
     }
-    
+
+
+    if(isEdit()){
+        cliente.id = document.getElementById('nome').dataset.id
+        await updateCliente(cliente)
+    }else{
+
     //Pegar o JSON e enviar o servidor API
-    await createClient(client)
+        await createCliente(client)
+
+    }
 
     //Fechar a modal
     closeModal()
@@ -49,20 +62,51 @@ const saveClient = async  () => {
     //Atualizar a tabela 
     updateTable()
 }
-const actionClient = async (event) => {
-    if(event.target.type == 'button'){
 
-        const [action, codigo]= event.target.id.split('-')
 
-        if(action [0] == 'editar'){
-            //função para editar o cliente
-        }else if (action [0] == 'excluir'){
-           //funçao para excluir
-          await deleteClient(codigo)
-          updateTable()
-        }
-    }
+const fillForm = (cliente) => {
+
+    document.getElementById('nome').value = cliente.nome
+    document.getElementById('email').value = cliente.email
+    document.getElementById('celular').value = cliente.celular
+    document.getElementById('cidade').value = cliente.cidade
+    document.getElementById('nome').dataset.id = cliente.id
+
 }
+
+globalThis.editClient = async (id) =>{
+    //Armazenar as informações do cliente selecionado em uma variavel
+    const cliente = await readClients(id)
+
+
+    //Preencher formulário com as informações
+    fillForm(cliente)
+
+
+    //Abrir a modal no estado de edição
+    openModal()
+}
+
+globalThis.delClient = async (id) =>{
+    await deleteClient(id)
+    updateTable()
+}
+
+
+// const actionClient = async (event) => {
+//     if(event.target.type == 'button'){
+
+//         const [action, codigo]= event.target.id.split('-')
+
+//         if(action == 'editar'){
+//             //função para editar o cliente
+//         }else if (action == 'excluir'){
+//            //funçao para excluir
+//           await deleteClient(codigo)
+//           updateTable()
+//         }
+//     }
+// }
 
 //Essa funcao vai atualizar a tabela
     updateTable()
@@ -70,5 +114,5 @@ const actionClient = async (event) => {
 // Eventos
 document.getElementById('cadastrarCliente').addEventListener('click', openModal)
 document.getElementById('salvar').addEventListener('click', saveClient)
-document.getElementById('clients-container').addEventListener('click', actionClient)
+//document.getElementById('clients-container').addEventListener('click', actionClient)
 
