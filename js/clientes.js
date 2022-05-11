@@ -10,7 +10,7 @@ const readClients =  async (id='') => {
 
 }
 
-const createClient = async (client) => {
+const createClient = async(client) => {
     const options = {
         'method': 'POST',
         'body': JSON.stringify(client),
@@ -18,8 +18,9 @@ const createClient = async (client) => {
             'content-type': 'application/json'
         }
     }
-    const response = await fetch (url, options)
-    console.log(response.ok)
+
+    const response = await fetch(url, options)
+    console.log (response.ok)
 }
 
 const deleteClient = async (codigo) => {
@@ -45,5 +46,6 @@ export{
     createClient,
     deleteClient,
     updateCliente
+   
 
 }
